@@ -1,0 +1,75 @@
+#!/usr/bin/env python
+"""
+Author: Ben Marsh
+        b.marsh@aims.gov.au
+
+Description:
+        Read depth from Blue Robotics Bar02 sensor
+"""
+
+import rospy
+import time
+import ms5837
+from ms5837 import MS5837
+from std_msgs.msg import Float32
+
+TOPIC_PRESSURE_DEPTH = "/pressure_depth"
+
+class ReefscanAcquireBar02SensorClass(object):
+    # Function:		__init__(self)
+    # Description: 	Create ROS Publisher and Class Variables for data handling
+    def __init__(self):
+        # Create object for pressure transducer
+        # It is attached to SMBUS (I2C) number 7 on Jetson Rudi NX and ORIN NX)
+        self.depth_sensor = ms5837.MS5837(model=ms5837.MODEL_30BA, bus=7)
+        self.depth_sensor.init()
+        self.depth_sensor.setFluidDensity(ms5837.DENSITY_SALTWATER)
+        # Sleep is required after init()
+        time.sleep(.1)
+        # Create timer and publisher to publish depth every 100ms
+        self.pub_depth = rospy.Publisher(TOPIC_PRESSURE_DEPTH, Float32 , queue_size=1)
+        self.timer = rospy.Timer(rospy.Duration(1.0/10.0), self.publish_a_msg)
+        # Initialize counter of errors so we can take action if there are many in a row
+        self.error_counter = 0
+
+
+    def publish_a_msg(self, other):
+        # initialise pressure/depth message
+        self.msg_depth_sensor = Float32()
+        # use NaN no signify errorneous data
+        self.msg_depth_sensor.data = float("nan")
+        try:
+            # Read the depth from the sensor.  Reset error counter
+            if self.depth_sensor.read():
+                self.msg_depth_sensor.data = self.depth_sensor.depth()
+                self.error_counter = 0
+            else:   # error getting new reading
+                print("Error communicating with pressure sensor")
+                self.error_counter += 1
+        except:
+            print("Error communicating with pressure sensor (exception)")
+            self.error_counter += 1
+
+        # if there is an error reading the sensor we can resend the previous data
+        # but if the error persists for over 2 seconds (20 misreads) set the data to NaN
+        if self.error_counter > 20:
+            self.msg_depth_sensor.data = float("nan")
+
+        try:
+            self.pub_depth.publish(self.msg_depth_sensor)
+        except Exception as e:
+            sys.print_exception(e)
+            print("can't send pressure message")
+
+
+if __name__ == '__main__':
+    # Initialise node with rospy
+    rospy.init_node('reefscan_acquire_bar02_sensor', anonymous=True)
+
+    reefscan_acquire_bar02_sensor = ReefscanAcquireBar02SensorClass()
+
+    # Go into the spin() loop so rospy can
+    try:
+        rospy.spin()
+    except KeyboardInterrupt:
+        print("Shutting down")
