@@ -171,8 +171,8 @@ include_directories(
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
 catkin_install_python(PROGRAMS
-  scripts/acquire_bar02_sensor.py
-  scripts/acquire_ping1d_sensor.py
+  scripts/acquire_bar02_sensor
+  scripts/acquire_ping1d_sensor
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
