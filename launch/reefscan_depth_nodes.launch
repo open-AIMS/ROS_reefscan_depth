@@ -1,8 +1,4 @@
 <launch>
-  <node pkg="reefscan_depth" type="acquire" name="reefscan_acquire"/>
-  <node pkg="reefscan_depth" type="view" name="reefscan_view"/>
-  <node pkg="reefscan_depth" type="control_joy" name="reefscan_control_joy"/>
-  <node pkg="reefscan_depth" type="photo_log" name="reefscan_photo_log"/>
-  <node pkg="reefscan_depth" type="control_mqtt" name="reefscan_control_mqtt"/>
-  <node pkg="reefscan_depth" type="marks" name="reefscan_marks"/>
+  <node pkg="reefscan_depth" type="acquire_ping1d_sensor" name="reefscan_acquire_ping1d_sensor"/>
+  <node pkg="reefscan_depth" type="acquire_bar02_sensor" name="reefscan_acquire_bar02_sensor"/>
 </launch>
