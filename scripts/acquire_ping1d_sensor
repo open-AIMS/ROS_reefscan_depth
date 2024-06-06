@@ -40,7 +40,6 @@ class ReefscanAcquireSonar(object):
             exit(1)
         time.sleep(0.5)    # delay for pinger to initialise
         self.pub_sonar_message = rospy.Publisher(TOPIC_PING_DEPTH, ping1d_distance_simple , queue_size=1)
-        self.timer_read_sensor = rospy.Timer(rospy.Duration(1.0/10.0), self.read_sensor)
       
     def read_sensor(self, other):
         depth_ping_data = self.ping_sensor.get_distance()
@@ -71,6 +70,7 @@ if __name__ == '__main__':
 
 
     reefscan_acquire_sonar = ReefscanAcquireSonar()
+    rospy.Timer(rospy.Duration(1.0/10.0), reefscan_acquire_sonar.read_sensor)
 
     # Go into the spin() loop so rospy can
     try:
