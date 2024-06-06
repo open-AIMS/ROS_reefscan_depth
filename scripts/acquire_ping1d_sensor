@@ -18,15 +18,14 @@ from br_msgs.msg import ping1d_distance_simple
 from brping import Ping1D
 
 TOPIC_PING_DEPTH = "/ping_depth"
+DEVICE_SERIAL_PORT = "/dev/ttyTHS1"
+DEVICE_SERIAL_BAUDRATE = 115200
 
 class ReefscanAcquireSonar(object):
     # Function:		__init__(self)
     # Description: 	Create ROS Subscriber and Publisher
   
     def __init__(self):
-        #self.sub_ping_depth = rospy.Subscriber(TOPIC_PING_DEPTH, ping1d_distance_simple,
-        #                                       self.subscriber_ping_depth_callback)
-        #self.publisher = rospy.Publish
         self.error_counter = 0
         self.msg_ping_sensor = ping1d_distance_simple()
         # use 0 no signify errorneous data
@@ -34,12 +33,10 @@ class ReefscanAcquireSonar(object):
         self.msg_ping_sensor.confidence = 0
 
         self.ping_sensor = Ping1D()
-        device = '/dev/ttyTHS1'
-        baudrate = 115200
-        self.ping_sensor.connect_serial(device, baudrate)
+        self.ping_sensor.connect_serial(DEVICE_SERIAL_PORT, DEVICE_SERIAL_BAUDRATE)
       
         if self.ping_sensor.initialize() is False:
-            print("Failed to initialize Ping!")
+            rospy.logerr("Failed to initialize Ping!")
             exit(1)
         time.sleep(0.5)    # delay for pinger to initialise
         self.pub_sonar_message = rospy.Publisher(TOPIC_PING_DEPTH, ping1d_distance_simple , queue_size=1)
@@ -47,13 +44,12 @@ class ReefscanAcquireSonar(object):
       
     def read_sensor(self, other):
         depth_ping_data = self.ping_sensor.get_distance()
-        print(depth_ping_data)
         if depth_ping_data:
             self.msg_ping_sensor.distance = int(depth_ping_data["distance"])
             self.msg_ping_sensor.confidence = int(depth_ping_data["confidence"])
             self.error_counter = 0
         else:
-            print("no ping data")
+            rospy.logerr("No ping data could be read from sensor!")
             self.msg_ping_sensor.distance = 0
             self.msg_ping_sensor.confidence = 0 
             self.error_counter += 1
@@ -64,12 +60,8 @@ class ReefscanAcquireSonar(object):
             self.msg_ping_sensor.distance = 0
             self.msg_ping_sensor.confidence = 9999
   
-        self.pub_sonar_message.publish(self.msg_ping_sensor)
         try:
-            pass
-            # print("ping published")
-            # msg_error.data = error_code
-            # self.node_handle.publish("ping_depth_error_codes", msg_error)
+            self.pub_sonar_message.publish(self.msg_ping_sensor)
         except:
             print("can't send ping message")
   
