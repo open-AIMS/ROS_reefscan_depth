@@ -63,7 +63,7 @@ class ReefscanAcquireSonar(object):
         try:
             self.pub_sonar_message.publish(self.msg_ping_sensor)
         except:
-            print("can't send ping message")
+            rospy.logerr("can't send ping message")
   
 if __name__ == '__main__':
     # Initialise node with rospy
