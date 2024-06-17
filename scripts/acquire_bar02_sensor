@@ -22,9 +22,13 @@ class ReefscanAcquireBar02SensorClass(object):
     # Description: 	Create ROS Publisher and Class Variables for data handling
     def __init__(self):
         # Create object for pressure transducer
-        self.depth_sensor = ms5837.MS5837(model=ms5837.MODEL_30BA, bus=I2C_BUS_NUMBER)
+        #self.depth_sensor = ms5837.MS5837(model=ms5837.MS5837_02BA, bus=I2C_BUS_NUMBER)
+        self.depth_sensor = ms5837.MS5837_02BA(7)
+
         self.depth_sensor.init()
+
         self.depth_sensor.setFluidDensity(ms5837.DENSITY_SALTWATER)
+
         # Sleep is required after init()
         time.sleep(.1)
 
@@ -37,12 +41,11 @@ class ReefscanAcquireBar02SensorClass(object):
         self.pub_depth = rospy.Publisher(TOPIC_PRESSURE_DEPTH, Float32, queue_size=1)
         # Initialize counter of errors so we can take action if there are many in a row
         self.error_counter = 0
-        rospy.loginfo("init")
 
 
     def publish_a_msg(self, other):
         try:
-            rospy.loginfo("read")
+            #rospy.logerr("read")
             # Read the depth from the sensor.  Reset error counter
             if self.depth_sensor.read():
                 self.msg_depth_sensor.data = self.depth_sensor.depth()
