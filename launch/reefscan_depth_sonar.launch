@@ -1,0 +1,3 @@
+<launch>
+  <node pkg="reefscan_depth" type="acquire_ping1d_sensor" name="reefscan_depth_acquire_ping1d_sensor" respawn="true"/>
+</launch>
