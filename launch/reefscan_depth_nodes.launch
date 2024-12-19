@@ -1,4 +1,4 @@
 <launch>
-  <node pkg="reefscan_depth" type="acquire_ping1d_sensor" name="reefscan_depth_acquire_ping1d_sensor"/>
-  <node pkg="reefscan_depth" type="acquire_bar02_sensor" name="reefscan_depth_acquire_bar02_sensor"/>
+  <node pkg="reefscan_depth" type="acquire_ping1d_sensor" name="reefscan_depth_acquire_ping1d_sensor" respawn="true"/>
+  <node pkg="reefscan_depth" type="acquire_bar02_sensor" name="reefscan_depth_acquire_bar02_sensor" respawn="true"/>
 </launch>
